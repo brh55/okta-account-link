@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <title>Simple Web Page</title>
+    <style>
+      h1 {
+        margin: 1em 0;
+      }
+      #messageBox {
+        display: none;
+      }
+    </style>
+    <!-- widget stuff here -->
+    <script src="https://global.oktacdn.com/okta-signin-widget/5.9.4/js/okta-sign-in.min.js" type="text/javascript"></script>
+    <link href="https://global.oktacdn.com/okta-signin-widget/5.9.4/css/okta-sign-in.min.css" type="text/css" rel="stylesheet"/>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center">Link SAML Account</h1>
+      <!-- where the sign-in form will be displayed -->
+      <div id="messageBox" class="alert alert-primary" role="alert">
+      </div>
+      <div id="okta-login-container"></div>
+      <button id="logout" class="button" onclick="logout()" style="display: none">Logout</button>
+    </div>
+    <script type="text/javascript">
+        const main = async () => {
+            try {
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                let configuration;
+                const spokeConfiguration = {
+                    baseUrl: "https://dev-656962.oktapreview.com/",
+                    clientId: "0oaoen2jxwGVfmbpq0h7",
+                    redirectUri: window.location.origin,
+                    authParams: {
+                        issuer: "https://dev-656962.oktapreview.com/oauth2/aus11gn19g5Hst91j0h8"
+                    }
+                };
+
+                const hubConfiguraton = {
+                    baseUrl: "https://ashwin.okta.com/",
+                    clientId: "0oac0lwn8zZBI97to357",
+                    redirectUri: window.location.origin,
+                    authParams: {
+                        issuer: "https://ashwin.okta.com/oauth2/default"
+                    }
+                };
+
+                // OIDC Compliant Authorize Init
+                // Alternatively, we can send the ID Token with Okta Simplified - Implicit
+                if (urlParams.get('iss')) {
+                    const oktaSignIn = {
+                        spoke: new OktaSignIn(spokeConfiguration),
+                        hub: new OktaSignIn(hubConfiguraton)
+                    };
+                    // Get a token through session validaton
+                    // Do not store token
+                    const response = await oktaSignIn.spoke.authClient.token.getWithoutPrompt({
+                        responseType: 'id_token', // or array of types
+                    });
+                    const spokeTokens = response.tokens;
+    
+                    // Validate User Account by Loggin In
+                    const hubTokens = await oktaSignIn.hub.showSignInToGetTokens({
+                        el: '#okta-login-container'
+                    });
+
+                    document.getElementById("messageBox").style.display = 'block';
+                    document.getElementById("messageBox").innerHTML = "Linking account....";
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                            'Authorization': `Bearer ${hubTokens.accessToken}`
+                        },
+                        // We send the ID Token from the Spoke that we can verify that it hasn't been
+                        // tampered with, which will also contain the Linking Attribute
+                        body: spokeTokens.idToken
+                    });
+                }
+            } catch (err) {
+                document.getElementById("messageBox").style.display = 'block';
+                document.getElementById("messageBox").innerHTML = "Opps, there was an issue" + err;
+            }
+        }
+
+        main();
+
+      function logout() {
+        oktaSignIn.authClient.signOut();
+        location.reload();
+      }
+    </script>
+  </body>
+</html>

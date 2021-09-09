@@ -1,0 +1,13 @@
+{
+  "name": "saml-link-serverless",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {
+    "@okta/okta-sdk-nodejs": "^5.0.0"
+  },
+  "devDependencies": {
+    "glob": "^7.1.7",
+    "serverless-plugin-include-dependencies": "^5.0.0",
+    "serverless-s3-sync": "^1.17.1"
+  }
+}
