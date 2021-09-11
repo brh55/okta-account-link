@@ -49,8 +49,12 @@ h1 {
 }
 
 .about {
-    position: relative;
-    top: 25%;
+    height: 100%;
+    padding: 2em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .panel--right {
