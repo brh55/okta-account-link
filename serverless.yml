@@ -3,71 +3,39 @@ app: okta-saml-link
 service: saml-link-serverless
 frameworkVersion: '2'
 useDotenv: true
+plugins:
+  - serverless-plugin-include-dependencies
+  - serverless-dotenv-plugin
+package:
+  excludeDevDependencies: false
+
 provider:
   name: aws
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
-package:
-  excludeDevDependencies: false
-plugins:
-  - serverless-plugin-include-dependencies
-  - serverless-s3-sync
-custom:
-  siteName: saml-link.ciam.app
-  hostedZoneName: serverless-zombo.com
-  aliasHostedZoneId: Z3AQBSTGFYJSTF    # us-east-1
-  aliasDNSName: s3-website-us-east-1.amazonaws.com
-  s3Sync:
-    - bucketName: ${self:custom.siteName}
-      localDir: static
+  httpApi:
+    authorizers:
+      oktaAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: ${env:OKTA_HUB_ISSUER}
+        audience:
+          - ${env:OKTA_HUB_AUDIENCE}
+    cors: true
 
 functions:
-  checkAccount:
-    handler: lambda/checkAccount.handler
-  updateAccount:
-    handler: lambda/updateAccount.handler
+  linkRedirect:
+    handler: lambda/linkRedirect.handler
+    events:
+      - httpApi:
+          path: /linkRedirect
+          method: post
 
-resources:
-  Resources:
-
-    StaticSite:
-      Type: AWS::S3::Bucket
-      Properties:
-        AccessControl: PublicRead
-        BucketName: ${self:custom.siteName}
-        WebsiteConfiguration:
-          IndexDocument: index.html
-    
-    StaticSiteS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket:
-          Ref: StaticSite
-        PolicyDocument:
-          Statement:
-            - Sid: PublicReadGetObject
-              Effect: Allow
-              Principal: "*"
-              Action:
-              - s3:GetObject
-              Resource:
-                Fn::Join: [
-                  "", [
-                    "arn:aws:s3:::",
-                    {
-                      "Ref": "StaticSite"
-                    },
-                    "/*"
-                  ]
-                ]
-
-    DnsRecord:
-      Type: "AWS::Route53::RecordSet"
-      Properties:
-        AliasTarget:
-          DNSName: ${self:custom.aliasDNSName}
-          HostedZoneId: ${self:custom.aliasHostedZoneId}
-        HostedZoneName: ${self:custom.siteName}.
-        Name:
-          Ref: StaticSite
-        Type: 'A'
+  createLink:
+    handler: lambda/createLink.handler
+    events:
+      - httpApi:
+          path: /createLink
+          method: post
+          authorizer:
+            name: oktaAuthorizer

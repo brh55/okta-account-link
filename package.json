@@ -3,10 +3,13 @@
   "description": "",
   "version": "0.1.0",
   "dependencies": {
-    "@okta/okta-sdk-nodejs": "^5.0.0"
+    "@okta/jwt-verifier": "^2.3.0",
+    "@okta/okta-sdk-nodejs": "^5.0.0",
+    "jwt-decode": "^3.1.2"
   },
   "devDependencies": {
     "glob": "^7.1.7",
+    "serverless-dotenv-plugin": "^3.9.0",
     "serverless-plugin-include-dependencies": "^5.0.0",
     "serverless-s3-sync": "^1.17.1"
   }

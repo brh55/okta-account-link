@@ -27,6 +27,15 @@
       <button id="logout" class="button" onclick="logout()" style="display: none">Logout</button>
     </div>
     <script type="text/javascript">
+        function setMessage (message) {
+          document.getElementById("messageBox").style.display = 'block';
+          document.getElementById("messageBox").innerHTML = message;
+        }
+
+        function hideMessage (message) {
+          document.getElementById("messageBox").style.display = 'none';
+        }
+
         const main = async () => {
             try {
                 const queryString = window.location.search;
@@ -37,7 +46,7 @@
                     clientId: "0oaoen2jxwGVfmbpq0h7",
                     redirectUri: window.location.origin,
                     authParams: {
-                        issuer: "https://dev-656962.oktapreview.com/oauth2/aus11gn19g5Hst91j0h8"
+                        issuer: "https://dev-656962.oktapreview.com/"
                     }
                 };
 
@@ -46,52 +55,62 @@
                     clientId: "0oac0lwn8zZBI97to357",
                     redirectUri: window.location.origin,
                     authParams: {
-                        issuer: "https://ashwin.okta.com/oauth2/default"
+                        issuer: "https://ashwin.okta.com/oauth2/ausc17pzlo665DbhZ357"
                     }
                 };
 
                 // OIDC Compliant Authorize Init
                 // Alternatively, we can send the ID Token with Okta Simplified - Implicit
-                if (urlParams.get('iss')) {
-                    const oktaSignIn = {
-                        spoke: new OktaSignIn(spokeConfiguration),
-                        hub: new OktaSignIn(hubConfiguraton)
-                    };
-                    // Get a token through session validaton
-                    // Do not store token
-                    const response = await oktaSignIn.spoke.authClient.token.getWithoutPrompt({
-                        responseType: 'id_token', // or array of types
-                    });
-                    const spokeTokens = response.tokens;
-    
-                    // Validate User Account by Loggin In
-                    const hubTokens = await oktaSignIn.hub.showSignInToGetTokens({
-                        el: '#okta-login-container'
-                    });
+                  const oktaSignIn = {
+                      spoke: new OktaSignIn(spokeConfiguration),
+                      hub: new OktaSignIn(hubConfiguraton)
+                  };
 
-                    document.getElementById("messageBox").style.display = 'block';
-                    document.getElementById("messageBox").innerHTML = "Linking account....";
+                  // Get a token through session validaton
+                  // Do not store token
+                  setMessage('🔍 Fetching associated account from identity provider...');
+                  let response = await oktaSignIn.spoke.authClient.token.getWithoutPrompt({
+                      responseType: 'id_token', // or array of types,
+                      scopes: ['profile', 'openid']
+                  });
+                  const spokeTokens = response.tokens;
 
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        mode: 'cors',
-                        headers: {
-                            'Content-Type': 'text/plain',
-                            'Authorization': `Bearer ${hubTokens.accessToken}`
-                        },
-                        // We send the ID Token from the Spoke that we can verify that it hasn't been
-                        // tampered with, which will also contain the Linking Attribute
-                        body: spokeTokens.idToken
-                    });
-                }
+                  setMessage('🔐 Account loaded, please sign into your account to link both accounts.');
+                  // Validate User Account by Loggin In
+                  const hubTokens = await oktaSignIn.hub.showSignInToGetTokens({
+                      el: '#okta-login-container'
+                  });
+
+                  setMessage('🔗 Successfully logged in....attempting to link accounts');
+                  const createLinkUrl = 'https://n7nn6alv37.execute-api.us-east-1.amazonaws.com/createLink';
+                  response = await fetch(createLinkUrl, {
+                      method: 'POST',
+                      mode: 'cors',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${hubTokens.accessToken.accessToken}`
+                      },
+                      // We send the ID Token from the Spoke that we can verify that it hasn't been
+                      // tampered with, which will also contain the Linking Attribute
+                      body: JSON.stringify({
+                        id_token: spokeTokens.idToken.idToken // raw id token
+                      })
+                  });
+
+                  if (response.status === 200) {
+                    setMessage('✅ Linked associated account...redirecting to destination in 2 seconds');
+                    setTimeout(() => {
+                      window.location.href = "https://dev-656962.oktapreview.com/sso/saml2/0oa11g9roygxKBpJk0h8/home/oidc_client/0oaoen2jxwGVfmbpq0h7/aln5z7uhkbM6y7bMy0g7";
+                    }, 2000);
+                  } else {
+                    throw new Error("⚠️ Failed to update user...", response.body);
+                  }
             } catch (err) {
-                document.getElementById("messageBox").style.display = 'block';
-                document.getElementById("messageBox").innerHTML = "Opps, there was an issue" + err;
+                setMessage(err);
             }
         }
 
         main();
-
       function logout() {
         oktaSignIn.authClient.signOut();
         location.reload();
