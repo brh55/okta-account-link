@@ -1,0 +1,98 @@
+html, body {
+    height: 100%;
+}
+
+.main {
+    height: 100%;
+}
+
+h1 {
+    margin: 1em 0;
+}
+
+#messageBox {
+    display: none;
+    margin: 0 auto;
+    background: #f4f8fb;
+    padding: 1.25em;
+    color: #475f71;
+}
+
+.row {
+    height: 100%;
+}
+
+.panel {
+    height: 100%;
+}
+
+.panel--left {
+    background-color: #f7f8fc;
+}
+
+.panel--left h2 {
+    color: #454b63;
+    font-weight: 900;
+    font-size: 2.25em;
+    margin-bottom: .5em;
+}
+
+.panel--left p {
+    font-size: .80em;
+    color: #626882;
+}
+
+.panel--left img {
+    margin: 2em auto;
+    display: block;
+    width: 60%;
+}
+
+.about {
+    position: relative;
+    top: 25%;
+}
+
+.panel--right {
+    padding: 2em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.panel--right h3 {
+    font-weight: 800;
+    color: #444548;
+    margin-bottom: .75em;
+}
+
+.login {
+    width: 100%;
+}
+
+.login #okta-sign-in.auth-container h2, #okta-sign-in.auth-container h3 {
+    font-weight: 800;
+    color: #444548;
+    margin-bottom: .75em;
+    font-size: 2em;
+    text-align: left;
+}
+
+.login #okta-sign-in {
+    margin: initial;
+    margin-top: 1em;
+    width: 85%;
+}
+
+.login #okta-sign-in.auth-container.main-container {
+    border: 0;
+}
+
+.login #okta-sign-in.auth-container .okta-sign-in-header {
+    border: 0;
+}
+
+.login #okta-sign-in .auth-content {
+    padding-left: 0;
+}

@@ -8,3 +8,5 @@ jspm_packages
 .env
 
 /mocks
+
+.DS_Store
