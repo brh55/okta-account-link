@@ -74,17 +74,12 @@ Which should result in response similar to the following:
 
 ### Local development
 
-You can invoke your function locally by using the following command:
+Update the mock stubs accordingly with your correct tokens.
 
 ```bash
-serverless invoke local --function hello
+serverless invoke local --function createLink --path mocks/createLink.json
 ```
 
-Which should result in response similar to the following:
-
-```
-{
-    "statusCode": 200,
-    "body": "{\n  \"message\": \"Go Serverless v2.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
-}
+```bash
+serverless invoke local --function linkRedirect --path mocks/redirect.json
 ```
