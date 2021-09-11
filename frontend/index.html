@@ -51,7 +51,7 @@
                     clientId: "0oaoen2jxwGVfmbpq0h7",
                     redirectUri: window.location.origin,
                     authParams: {
-                        issuer: "https://dev-656962.oktapreview.com/"
+                        issuer: "https://dev-656962.oktapreview.com/oauth/aus11gn19g5Hst91j0h8"
                     }
                 };
 
@@ -94,7 +94,7 @@
 
                   oktaSignIn.hub.remove();
                   setMessage('🔗 Linking accounts....');
-                  
+
                   const createLinkUrl = 'https://n7nn6alv37.execute-api.us-east-1.amazonaws.com/createLink';
                   response = await fetch(createLinkUrl, {
                       method: 'POST',

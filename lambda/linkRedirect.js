@@ -9,6 +9,8 @@ const client = new okta.Client({
   token: process.env.OKTA_HUB_API_TOKEN    // Obtained from Developer Dashboard
 });
 
+// This is Okta Simplified approach
+// But it would require less configuration to redirect to initiate an oauth code flow
 module.exports.handler = async (event) => {
   try {
     if (event.body === null || event.body === undefined) {
